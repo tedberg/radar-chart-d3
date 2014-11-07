@@ -263,7 +263,7 @@ var RadarChart = {
             }
 
             if (position.y > origin.y) {
-              padding.y = 25;
+              padding.y = 75;
             } else if (position.y < origin.y) {
               padding.y = -10;
             }
