@@ -221,20 +221,10 @@ var RadarChart = {
           });
 
         if(cfg.circles && cfg.radius) {
-          console.debug("data", data);
-          console.debug("data[1]", data[1]);
-
-          console.debug("container", container);
-
-
           var tooltip = container.selectAll('.tooltip').data([1]);
           tooltip.enter().append('text').attr('class', 'tooltip');
 
           var tooltipContainer = d3.select('div#riskChart');
-          console.debug("cfg.containerClass", cfg.containerClass);
-          console.debug("tooltipContainer", tooltipContainer);
-
-
           tooltipContainer = tooltipContainer.append('div').attr('class', 'tooltip');
 
           var circleGroups = container.selectAll('g.circle-group').data(data, cfg.axisJoin);
@@ -267,15 +257,15 @@ var RadarChart = {
               y: 0
             };
             if (position.x > origin.x) {
-              padding.x = 25;
+              padding.x = 0;
             } else if (position.x < origin.x) {
-              padding.x = -100;
+              padding.x = -125;
             }
 
             if (position.y > origin.y) {
               padding.y = 25;
             } else if (position.y < origin.y) {
-              padding.y = -25;
+              padding.y = -10;
             }
 
             return padding;
@@ -284,7 +274,7 @@ var RadarChart = {
           circle.enter().append('circle')
             .classed({circle: 1, 'd3-enter': 1})
             .on('mouseover', function(d){
-              console.debug("mouseover d", d);
+//              console.debug("mouseover d", d);
 
               var origin = {
                 x: cfg.w / 2,
@@ -298,8 +288,8 @@ var RadarChart = {
 
               var padding = calculatePadding(position, origin);
 
-              console.debug("position", position);
-              console.debug("padding", padding);
+//              console.debug("position", position);
+//              console.debug("padding", padding);
 
               if (typeof cfg.tooltipContent === 'function') {
                 tooltip
@@ -311,7 +301,7 @@ var RadarChart = {
 
               if (typeof cfg.tooltipContentHTML === 'function') {
                 tooltipContainer
-                  .style({'left': d[0].x + padding.x + 'px', 'top': d[0].y + padding.y - (cfg.h / 2) + 'px'})
+                  .style({'left': d[0].x + padding.x + cfg.w - 25 + 'px', 'top': d[0].y + padding.y + 50 + 'px'})
                   .html(cfg.tooltipContentHTML(d))
                   .classed('visible', 1);
               }
@@ -320,7 +310,7 @@ var RadarChart = {
               container.select('.area.radar-chart-serie'+d[1]).classed('focused', 1);
             })
             .on('mouseout', function(d){
-              console.debug("mouseout d", d);
+//              console.debug("mouseout d", d);
               tooltip.classed('visible', 0);
               tooltipContainer.classed('visible', 0);
 
