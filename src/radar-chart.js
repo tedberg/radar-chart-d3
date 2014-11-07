@@ -18,6 +18,12 @@ var RadarChart = {
     axisJoin: function(d, i) {
       return d.className || i;
     },
+    tooltipContent : function(d) {
+      return d[0].value;
+    },
+    tooltipContentHTML : function(d) {
+      return d[0].value;
+    },
     transitionDuration: 300
   },
   chart: function() {
@@ -36,7 +42,7 @@ var RadarChart = {
           return datum;
         });
 
-        var maxValue = Math.max(cfg.maxValue, d3.max(data, function(d) { 
+        var maxValue = Math.max(cfg.maxValue, d3.max(data, function(d) {
           return d3.max(d.axes, function(o){ return o.value; });
         }));
 
@@ -80,49 +86,49 @@ var RadarChart = {
 
         if (cfg.levelTick){
           levelLine
-          .attr('class', 'level')
-          .attr('x1', function(levelFactor, i){
-            if (radius == levelFactor) {
-              return getHorizontalPosition(i, levelFactor);
-            } else {
-              return getHorizontalPosition(i, levelFactor) + (cfg.TickLength / 2) * Math.cos(i * cfg.radians / total);
-            }
-          })
-          .attr('y1', function(levelFactor, i){
-            if (radius == levelFactor) {
-              return getVerticalPosition(i, levelFactor);
-            } else {
-              return getVerticalPosition(i, levelFactor) - (cfg.TickLength / 2) * Math.sin(i * cfg.radians / total);
-            }
-          })
-          .attr('x2', function(levelFactor, i){
-            if (radius == levelFactor) {
-              return getHorizontalPosition(i+1, levelFactor);
-            } else {
-              return getHorizontalPosition(i, levelFactor) - (cfg.TickLength / 2) * Math.cos(i * cfg.radians / total);
-            }
-          })
-          .attr('y2', function(levelFactor, i){
-            if (radius == levelFactor) {
-              return getVerticalPosition(i+1, levelFactor);
-            } else {
-              return getVerticalPosition(i, levelFactor) + (cfg.TickLength / 2) * Math.sin(i * cfg.radians / total);
-            }
-          })
-          .attr('transform', function(levelFactor) {
-            return 'translate(' + (cfg.w/2-levelFactor) + ', ' + (cfg.h/2-levelFactor) + ')';
-          });
+            .attr('class', 'level')
+            .attr('x1', function(levelFactor, i){
+              if (radius == levelFactor) {
+                return getHorizontalPosition(i, levelFactor);
+              } else {
+                return getHorizontalPosition(i, levelFactor) + (cfg.TickLength / 2) * Math.cos(i * cfg.radians / total);
+              }
+            })
+            .attr('y1', function(levelFactor, i){
+              if (radius == levelFactor) {
+                return getVerticalPosition(i, levelFactor);
+              } else {
+                return getVerticalPosition(i, levelFactor) - (cfg.TickLength / 2) * Math.sin(i * cfg.radians / total);
+              }
+            })
+            .attr('x2', function(levelFactor, i){
+              if (radius == levelFactor) {
+                return getHorizontalPosition(i+1, levelFactor);
+              } else {
+                return getHorizontalPosition(i, levelFactor) - (cfg.TickLength / 2) * Math.cos(i * cfg.radians / total);
+              }
+            })
+            .attr('y2', function(levelFactor, i){
+              if (radius == levelFactor) {
+                return getVerticalPosition(i+1, levelFactor);
+              } else {
+                return getVerticalPosition(i, levelFactor) + (cfg.TickLength / 2) * Math.sin(i * cfg.radians / total);
+              }
+            })
+            .attr('transform', function(levelFactor) {
+              return 'translate(' + (cfg.w/2-levelFactor) + ', ' + (cfg.h/2-levelFactor) + ')';
+            });
         }
         else{
           levelLine
-          .attr('class', 'level')
-          .attr('x1', function(levelFactor, i){ return getHorizontalPosition(i, levelFactor); })
-          .attr('y1', function(levelFactor, i){ return getVerticalPosition(i, levelFactor); })
-          .attr('x2', function(levelFactor, i){ return getHorizontalPosition(i+1, levelFactor); })
-          .attr('y2', function(levelFactor, i){ return getVerticalPosition(i+1, levelFactor); })
-          .attr('transform', function(levelFactor) {
-            return 'translate(' + (cfg.w/2-levelFactor) + ', ' + (cfg.h/2-levelFactor) + ')';
-          });
+            .attr('class', 'level')
+            .attr('x1', function(levelFactor, i){ return getHorizontalPosition(i, levelFactor); })
+            .attr('y1', function(levelFactor, i){ return getVerticalPosition(i, levelFactor); })
+            .attr('x2', function(levelFactor, i){ return getHorizontalPosition(i+1, levelFactor); })
+            .attr('y2', function(levelFactor, i){ return getVerticalPosition(i+1, levelFactor); })
+            .attr('transform', function(levelFactor) {
+              return 'translate(' + (cfg.w/2-levelFactor) + ', ' + (cfg.h/2-levelFactor) + ')';
+            });
         }
         if(cfg.axisLine || cfg.axisText) {
           var axis = container.selectAll('.axis').data(allAxis);
@@ -189,7 +195,7 @@ var RadarChart = {
         polygon.exit()
           .classed('d3-exit', 1) // trigger css transition
           .transition().duration(cfg.transitionDuration)
-            .remove();
+          .remove();
 
         polygon
           .each(function(d, i) {
@@ -204,19 +210,32 @@ var RadarChart = {
           .style('stroke', function(d, i) { return cfg.color(i); })
           .style('fill', function(d, i) { return cfg.color(i); })
           .transition().duration(cfg.transitionDuration)
-            // svg attrs with js
-            .attr('points',function(d) {
-              return d.axes.map(function(p) {
-                return [p.x, p.y].join(',');
-              }).join(' ');
-            })
-            .each('start', function() {
-              d3.select(this).classed('d3-enter', 0); // trigger css transition
-            });
+          // svg attrs with js
+          .attr('points',function(d) {
+            return d.axes.map(function(p) {
+              return [p.x, p.y].join(',');
+            }).join(' ');
+          })
+          .each('start', function() {
+            d3.select(this).classed('d3-enter', 0); // trigger css transition
+          });
 
         if(cfg.circles && cfg.radius) {
+          console.debug("data", data);
+          console.debug("data[1]", data[1]);
+
+          console.debug("container", container);
+
+
           var tooltip = container.selectAll('.tooltip').data([1]);
           tooltip.enter().append('text').attr('class', 'tooltip');
+
+          var tooltipContainer = d3.select('div#riskChart');
+          console.debug("cfg.containerClass", cfg.containerClass);
+          console.debug("tooltipContainer", tooltipContainer);
+
+
+          tooltipContainer = tooltipContainer.append('div').attr('class', 'tooltip');
 
           var circleGroups = container.selectAll('g.circle-group').data(data, cfg.axisJoin);
 
@@ -234,28 +253,76 @@ var RadarChart = {
               d3.select(this).classed(classed);
             })
             .transition().duration(cfg.transitionDuration)
-              .each('start', function() {
-                d3.select(this).classed('d3-enter', 0); // trigger css transition
-              });
+            .each('start', function() {
+              d3.select(this).classed('d3-enter', 0); // trigger css transition
+            });
 
           var circle = circleGroups.selectAll('.circle').data(function(datum, i) {
             return datum.axes.map(function(d) { return [d, i]; });
           });
 
+          function calculatePadding(position, origin) {
+            var padding = {
+              x: 0,
+              y: 0
+            };
+            if (position.x > origin.x) {
+              padding.x = 25;
+            } else if (position.x < origin.x) {
+              padding.x = -100;
+            }
+
+            if (position.y > origin.y) {
+              padding.y = 25;
+            } else if (position.y < origin.y) {
+              padding.y = -25;
+            }
+
+            return padding;
+          }
+
           circle.enter().append('circle')
             .classed({circle: 1, 'd3-enter': 1})
             .on('mouseover', function(d){
-              tooltip
-                .attr('x', d[0].x - 10)
-                .attr('y', d[0].y - 5)
-                .text(d[0].value)
-                .classed('visible', 1);
+              console.debug("mouseover d", d);
+
+              var origin = {
+                x: cfg.w / 2,
+                y: cfg.h / 2
+              };
+
+              var position = {
+                x: d[0].x,
+                y: d[0].y
+              };
+
+              var padding = calculatePadding(position, origin);
+
+              console.debug("position", position);
+              console.debug("padding", padding);
+
+              if (typeof cfg.tooltipContent === 'function') {
+                tooltip
+                  .attr('x', d[0].x + 10)
+                  .attr('y', d[0].y - 5)
+                  .text(cfg.tooltipContent(d))
+                  .classed('visible', 1);
+              }
+
+              if (typeof cfg.tooltipContentHTML === 'function') {
+                tooltipContainer
+                  .style({'left': d[0].x + padding.x + 'px', 'top': d[0].y + padding.y - (cfg.h / 2) + 'px'})
+                  .html(cfg.tooltipContentHTML(d))
+                  .classed('visible', 1);
+              }
 
               container.classed('focus', 1);
               container.select('.area.radar-chart-serie'+d[1]).classed('focused', 1);
             })
             .on('mouseout', function(d){
+              console.debug("mouseout d", d);
               tooltip.classed('visible', 0);
+              tooltipContainer.classed('visible', 0);
 
               container.classed('focus', 0);
               container.select('.area.radar-chart-serie'+d[1]).classed('focused', 0);
@@ -274,17 +341,17 @@ var RadarChart = {
             // styles should only be transitioned with css
             .style('fill', function(d) { return cfg.color(d[1]); })
             .transition().duration(cfg.transitionDuration)
-              // svg attrs with js
-              .attr('r', cfg.radius)
-              .attr('cx', function(d) {
-                return d[0].x;
-              })
-              .attr('cy', function(d) {
-                return d[0].y;
-              })
-              .each('start', function() {
-                d3.select(this).classed('d3-enter', 0); // trigger css transition
-              });
+            // svg attrs with js
+            .attr('r', cfg.radius)
+            .attr('cx', function(d) {
+              return d[0].x;
+            })
+            .attr('cy', function(d) {
+              return d[0].y;
+            })
+            .each('start', function() {
+              d3.select(this).classed('d3-enter', 0); // trigger css transition
+            });
 
           // ensure tooltip is upmost layer
           var tooltipEl = tooltip.node();
